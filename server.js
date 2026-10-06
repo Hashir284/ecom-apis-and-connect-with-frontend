@@ -148,11 +148,10 @@ app.get('/api/product', async (req, res) => {
   }
 })
 
-
-const __directory = path.resolve()
-const __frontend = path.join(__directory, 'Web/dist')
+const __dirname = path.resolve()
+const __frontend = path.join(__dirname, './Web/dist')
 app.use('/', express.static(__frontend))
-app.use('/*splat', express.static(__frontend))
+app.use("/*splat", express.static(__frontend))
 export default app
 
 // app.listen(4000, () => {
