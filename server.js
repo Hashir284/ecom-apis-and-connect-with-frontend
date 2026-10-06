@@ -154,6 +154,6 @@ console.log(__frontend);
 app.use('/', express.static(__frontend))
 app.use('/*splat', express.static(__frontend))
 
-app.listen(4000, () => {
-    console.log('You Server is runnig at http://localhost:4000')
-})
+// app.listen(4000, () => {
+//     console.log('You Server is runnig at http://localhost:4000')
+// })
