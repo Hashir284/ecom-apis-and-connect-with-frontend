@@ -153,6 +153,7 @@ const __directory = path.resolve()
 const __frontend = path.join(__directory, 'Web/dist')
 app.use('/', express.static(__frontend))
 app.use('/*splat', express.static(__frontend))
+export default app
 
 // app.listen(4000, () => {
 //     console.log('You Server is runnig at http://localhost:4000')
