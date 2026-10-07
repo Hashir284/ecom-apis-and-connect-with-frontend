@@ -70,9 +70,6 @@ app.post('/api/login', async (req, res) => {
     }
 })
 
-// ==================== CATEGORY APIs ====================
-
-// 1. Add Category
 app.post('/api/category', async (req, res) => {
   const { name, description, image_url } = req.body
   if (!name) {
@@ -106,9 +103,6 @@ app.get('/api/category', async (req, res) => {
   }
 })
 
-// ==================== PRODUCT APIs ====================
-
-// Add Product API
 app.post('/api/product', async (req, res) => {
   const { title, price, category_id, description, image_url } = req.body
   if (!title || !price || !category_id) {
@@ -131,7 +125,6 @@ app.post('/api/product', async (req, res) => {
   }
 })
 
-// Get All Products API
 app.get('/api/product', async (req, res) => {
   try {
     const queryText = `
