@@ -1,8 +1,11 @@
 import React, { useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../Api/api'
+import { useContext } from 'react'
+import { UserData } from '../Context/Context'
 
 const Login = () => {
+  const { userLoggedin, setUser, setUserLoggedin, user } = useContext(UserData)
   const email = useRef(null)
   const password = useRef(null)
   const navigate = useNavigate()
@@ -20,13 +23,13 @@ const Login = () => {
         email: email.current.value,
         password: password.current.value,
       })
-      
-      // User data local storage me save karke Dashboard par redirect karein
-      localStorage.setItem('user', JSON.stringify(response.data.user))
-      alert('Login successful!')
+      setUser(response.data.user)
+      setUserLoggedin(true)
       navigate('/dashboard')
     } catch (error) {
       alert(error.response?.data?.message || 'Login failed!')
+      setUserLoggedin(false)
+      setUser(null)
     }
   }
 
