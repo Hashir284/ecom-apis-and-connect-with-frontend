@@ -81,7 +81,7 @@ app.post('/api/logout', (req, res)=>{
 app.use('/api/*splat', (req, res, next) => {
   let Token = req?.cookies?.Token
   if (!Token) {
-    res.status(401).send({ status: "error", message: 'Bad' })
+    res.status(401).send({ status: "error", message: 'Unauthorized' })
     return
   }
 
