@@ -26,15 +26,20 @@ const Dashboard = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
+    getUser()
+  }, [navigate])
+
+  const getUser = async() =>{
+    try {
+      let { user } = api.get('me').data
+      setUser(user)
       fetchCategories()
       fetchProducts()
-    } else {
+    } catch (e) {
+      console.log(e.response);
       navigate('/login')
     }
-  }, [navigate])
+  }
 
   const fetchCategories = async () => {
     try {
@@ -110,8 +115,8 @@ const Dashboard = () => {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('user')
+  const handleLogout = async() => {
+    await api.post('logout')
     navigate('/login')
   }
 
