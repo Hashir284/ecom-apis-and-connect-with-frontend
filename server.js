@@ -62,8 +62,8 @@ app.post('/api/login', async (req, res) => {
 
     res.cookie('Token', userToken, {
       maxAge: 60 * 60 * 24,
-      httpOnly: false,
-      secure: false
+      httpOnly: true,
+      secure: true
     })
 
     res.status(200).send({ status: 'success', user: currentUser })
@@ -91,8 +91,8 @@ app.use('/api/*splat', (req, res, next) => {
       if (decodedData.exp < currentTime) {
         res.cookie('Token', '', {
           maxAge: 1,
-          httpOnly: false,
-          secure: false
+          httpOnly: true,
+          secure: true
         })
         res.status(401).send({ status: "error", message: 'Expired Token' })
         return
