@@ -220,12 +220,12 @@ app.post('/api/product', adminOnly, async (req, res) => {
 
 const __dirname = path.resolve()
 const __frontend = path.join(__dirname, './Web/dist')
-// app.use('/', express.static(__frontend))
-// // app.use("/*splat", express.static(__frontend))
-app.use(express.static(__frontend))
-app.get('/*splat', (req, res) => {
-  res.sendFile(path.join(__frontend, 'index.html'))
-})
+app.use('/', express.static(__frontend))
+app.use("/*splat", express.static(__frontend))
+// app.use(express.static(__frontend))
+// app.get('/*splat', (req, res) => {
+//   res.sendFile(path.join(__frontend, 'index.html'))
+// })
 
 app.listen(4000, () => {
   console.log('You Server is runnig at http://localhost:4000')

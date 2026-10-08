@@ -364,7 +364,7 @@ const Dashboard = () => {
                       <img
                         src={cat.image_url}
                         alt={cat.name}
-                        className="w-14 h-14 object-cover rounded-md flex-shrink-0"
+                        className="w-14 h-14 object-contain rounded-md flex-shrink-0"
                         onError={(e) => {
                           e.target.style.display = 'none'
                         }}
@@ -438,7 +438,7 @@ const Dashboard = () => {
                         <img
                           src={prod.image_url}
                           alt={prod.title}
-                          className="w-full h-36 object-cover rounded-md mb-3"
+                          className="w-full h-36 object-contain rounded-md mb-3"
                           onError={(e) => {
                             e.target.style.display = 'none'
                           }}
