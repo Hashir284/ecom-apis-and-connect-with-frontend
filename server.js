@@ -213,6 +213,11 @@ app.post('/api/product', adminOnly, async (req, res) => {
   }
 })
 
+// app.post('api/category', adminOnly, async (req, res)=>{
+// const { name, description, image_url } = req.body
+
+// })
+
 const __dirname = path.resolve()
 const __frontend = path.join(__dirname, './Web/dist')
 app.use('/', express.static(__frontend))

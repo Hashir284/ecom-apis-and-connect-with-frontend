@@ -34,6 +34,7 @@ const getUser = async () => {
   }
 
   if(userLoggedin === true && user != null){
+    // replace = current browser history wali entry ko replace kar do, nayi entry mat banao.
     return <Routes>
         <Route path="/" element={<Navigate to="/Dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
