@@ -61,7 +61,7 @@ app.post('/api/login', async (req, res) => {
     }, process.env.JWT_SECRET)
 
     res.cookie('Token', userToken, {
-      maxAge: 60 * 60 * 24,
+      maxAge: 60 * 60 * 24 * 1000,
       httpOnly: true,
       secure: true
     })
