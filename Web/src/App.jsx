@@ -18,9 +18,9 @@ function App() {
 const getUser = async () => {
     try {
       let apiRes  = await api.get('me')
-      console.log(apiRes.data.user);
-      setUser(apiRes.data.user)
-      setUserLoggedin(true)
+      console.log(apiRes?.data?.user || null);
+      setUser(apiRes.data.user || null)
+      setUserLoggedin(apiRes.data.user ? true : false)
     } catch (e) {
       setUserLoggedin(false)
       setUser(null)

@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../Api/api'
-import { useContext } from 'react'
 import UserDataProvider, { UserData } from '../Context/Context'
 
 const Dashboard = () => {
@@ -22,9 +21,13 @@ const Dashboard = () => {
   const categoryDescription = useRef(null)
   const categoryImageUrl = useRef(null)
 
-  // Product Inputs
-  const productTitle = useRef(null)
+  // Product Inputs (Updated for new schema)
+  const productName = useRef(null)
+  const productBrand = useRef(null)
+  const productSku = useRef(null)
   const productPrice = useRef(null)
+  const productDiscountPrice = useRef(null)
+  const productStock = useRef(null)
   const productCategory = useRef(null)
   const productDescription = useRef(null)
   const productImageUrl = useRef(null)
@@ -83,33 +86,48 @@ const Dashboard = () => {
     }
   }
 
-  // Add Product Handler
+  // Add Product Handler (Updated for new fields)
   const handleAddProduct = async (e) => {
     e.preventDefault()
-    const title = productTitle.current.value.trim()
+    const name = productName.current.value.trim()
+    const brand = productBrand.current.value.trim()
+    const sku = productSku.current.value.trim()
     const price = productPrice.current.value
-    const category_id = productCategory.current.value
+    const discount_price = productDiscountPrice.current.value
+    const stock = productStock.current.value
+    const category = productCategory.current.value
     const description = productDescription.current.value.trim()
-    const image_url = productImageUrl.current.value.trim()
+    const imageUrl = productImageUrl.current.value.trim()
 
-    if (!title || !price || !category_id) {
-      return alert('Please fill in Title, Price, and Category!')
+    if (!name || !price || !category || !sku || !stock || !imageUrl) {
+      return alert('Please fill in all required fields (Name, Price, Category, SKU, Stock, Image URL)!')
     }
+
+    // Backend array expect kar raha hai is liye array mein wrap kar ke bhej rahe hain
+    const image_array_product = [imageUrl]
 
     setIsProductLoading(true)
 
     try {
       await api.post('product', {
-        title,
+        product_name: name,
+        brand,
+        sku,
         price,
-        category_id,
+        discount_price: discount_price || 0,
+        stock,
+        category,
         description,
-        image_url
+        image_array_product
       })
 
-      alert('Product added!')
-      productTitle.current.value = ''
+      alert('Product added successfully!')
+      productName.current.value = ''
+      productBrand.current.value = ''
+      productSku.current.value = ''
       productPrice.current.value = ''
+      productDiscountPrice.current.value = ''
+      productStock.current.value = ''
       productCategory.current.value = ''
       productDescription.current.value = ''
       productImageUrl.current.value = ''
@@ -163,7 +181,7 @@ const Dashboard = () => {
 
         {/* Forms Grid */}
         {
-          user.role.toLowerCase() === 'admin' && (
+          user?.role?.toLowerCase() === 'admin' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
               {/* Add Category Form */}
@@ -221,14 +239,12 @@ const Dashboard = () => {
                         : 'bg-blue-600 hover:bg-blue-700'
                     }`}
                   >
-                    {isCategoryLoading
-                      ? 'Adding Category...'
-                      : 'Add Category'}
+                    {isCategoryLoading ? 'Adding Category...' : 'Add Category'}
                   </button>
                 </form>
               </div>
 
-              {/* Add Product Form */}
+              {/* Add Product Form (Updated) */}
               <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
                   Add New Product
@@ -239,12 +255,11 @@ const Dashboard = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Product Title *
+                        Product Name *
                       </label>
-
                       <input
                         type="text"
-                        ref={productTitle}
+                        ref={productName}
                         placeholder="Laptop, Shirt..."
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
@@ -252,13 +267,66 @@ const Dashboard = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Price ($) *
+                        Brand
                       </label>
+                      <input
+                        type="text"
+                        ref={productBrand}
+                        placeholder="Nike, Apple..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
 
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        SKU *
+                      </label>
+                      <input
+                        type="text"
+                        ref={productSku}
+                        placeholder="SKU-12345"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Stock *
+                      </label>
                       <input
                         type="number"
+                        ref={productStock}
+                        placeholder="10"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Price ($) *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
                         ref={productPrice}
                         placeholder="99.99"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Discount Price ($)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        ref={productDiscountPrice}
+                        placeholder="79.99"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
@@ -268,13 +336,11 @@ const Dashboard = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Select Category *
                     </label>
-
                     <select
                       ref={productCategory}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
                     >
                       <option value="">-- Choose Category --</option>
-
                       {categories.map((cat) => (
                         <option key={cat.id} value={cat.id}>
                           {cat.name}
@@ -285,9 +351,8 @@ const Dashboard = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product Image URL
+                      Product Image URL *
                     </label>
-
                     <input
                       type="url"
                       ref={productImageUrl}
@@ -300,7 +365,6 @@ const Dashboard = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Description
                     </label>
-
                     <textarea
                       ref={productDescription}
                       rows="2"
@@ -318,9 +382,7 @@ const Dashboard = () => {
                         : 'bg-green-600 hover:bg-green-700'
                     }`}
                   >
-                    {isProductLoading
-                      ? 'Adding Product...'
-                      : 'Add Product'}
+                    {isProductLoading ? 'Adding Product...' : 'Add Product'}
                   </button>
 
                 </form>
@@ -337,141 +399,117 @@ const Dashboard = () => {
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-
             {isCategoriesLoading ? (
               Array.from({ length: 3 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="p-4 border rounded-lg bg-gray-50 flex items-start space-x-3 animate-pulse"
-                >
+                <div key={index} className="p-4 border rounded-lg bg-gray-50 flex items-start space-x-3 animate-pulse">
                   <div className="w-14 h-14 bg-gray-200 rounded-md flex-shrink-0"></div>
-
                   <div className="flex-1 space-y-2">
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                     <div className="h-3 bg-gray-200 rounded w-full"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
                   </div>
                 </div>
               ))
             ) : (
               <>
                 {categories.map((cat) => (
-                  <div
-                    key={cat.id}
-                    className="p-4 border rounded-lg bg-gray-50 flex items-start space-x-3"
-                  >
+                  <div key={cat.id} className="p-4 border rounded-lg bg-gray-50 flex items-start space-x-3">
                     {cat.image_url ? (
                       <img
                         src={cat.image_url}
                         alt={cat.name}
                         className="w-14 h-14 object-contain rounded-md flex-shrink-0"
-                        onError={(e) => {
-                          e.target.style.display = 'none'
-                        }}
+                        onError={(e) => { e.target.style.display = 'none' }}
                       />
                     ) : (
                       <div className="w-14 h-14 bg-gray-200 rounded-md flex items-center justify-center text-xs text-gray-500 flex-shrink-0">
                         No Image
                       </div>
                     )}
-
                     <div className="overflow-hidden">
-                      <h4 className="font-bold text-gray-800 truncate">
-                        {cat.name}
-                      </h4>
-
-                      <p className="text-gray-500 text-xs mt-1 line-clamp-2">
-                        {cat.description || 'No description'}
-                      </p>
+                      <h4 className="font-bold text-gray-800 truncate">{cat.name}</h4>
+                      <p className="text-gray-500 text-xs mt-1 line-clamp-2">{cat.description || 'No description'}</p>
                     </div>
                   </div>
                 ))}
-
                 {categories.length === 0 && (
-                  <p className="text-gray-400 text-sm col-span-3">
-                    No categories added yet.
-                  </p>
+                  <p className="text-gray-400 text-sm col-span-3">No categories added yet.</p>
                 )}
               </>
             )}
-
           </div>
         </div>
 
-        {/* Products Grid */}
+        {/* Products Grid (Updated to display brand, sku, stock, and discount) */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             Products ({products.length})
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-
             {isProductsLoading ? (
               Array.from({ length: 3 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="p-4 border rounded-lg bg-gray-50 animate-pulse"
-                >
+                <div key={index} className="p-4 border rounded-lg bg-gray-50 animate-pulse">
                   <div className="w-full h-36 bg-gray-200 rounded-md mb-3"></div>
-
                   <div className="h-4 bg-gray-200 rounded w-24 mb-3"></div>
-
                   <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
-
-                  <div className="space-y-2">
-                    <div className="h-3 bg-gray-200 rounded w-full"></div>
-                    <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-                  </div>
-
-                  <div className="h-5 bg-gray-200 rounded w-20 mt-4"></div>
                 </div>
               ))
             ) : (
               <>
                 {products.map((prod) => (
-                  <div
-                    key={prod.id}
-                    className="p-4 border rounded-lg bg-gray-50 flex flex-col justify-between"
-                  >
+                  <div key={prod.id} className="p-4 border rounded-lg bg-gray-50 flex flex-col justify-between">
                     <div>
-                      {prod.image_url && (
+                      {/* Backend mein images array hai, is liye images[0] use kar rahe hain */}
+                      {prod.images && prod.images[0] && (
                         <img
-                          src={prod.image_url}
-                          alt={prod.title}
+                          src={prod.images[0]}
+                          alt={prod.name}
                           className="w-full h-36 object-contain rounded-md mb-3"
-                          onError={(e) => {
-                            e.target.style.display = 'none'
-                          }}
+                          onError={(e) => { e.target.style.display = 'none' }}
                         />
                       )}
 
-                      <span className="text-xs font-semibold uppercase text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                        {prod.category_name || 'Uncategorized'}
-                      </span>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs font-semibold uppercase text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                          {prod.brand || 'Generic'}
+                        </span>
+                        <span className="text-xs text-gray-500 font-mono">
+                          SKU: {prod.sku}
+                        </span>
+                      </div>
 
-                      <h4 className="font-bold text-gray-800 mt-2">
-                        {prod.title}
+                      <h4 className="font-bold text-gray-800 mt-1">
+                        {prod.name}
                       </h4>
 
-                      <p className="text-gray-500 text-xs mt-1">
+                      <p className="text-gray-500 text-xs mt-1 line-clamp-2">
                         {prod.description}
                       </p>
                     </div>
 
-                    <p className="text-green-600 font-bold mt-3">
-                      ${prod.price}
-                    </p>
+                    <div className="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
+                      <div>
+                        {prod.discount_price > 0 ? (
+                          <div className="flex items-center space-x-2">
+                            <span className="text-green-600 font-bold">${prod.discount_price}</span>
+                            <span className="text-gray-400 text-xs line-through">${prod.price}</span>
+                          </div>
+                        ) : (
+                          <span className="text-green-600 font-bold">${prod.price}</span>
+                        )}
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded font-semibold ${prod.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        Stock: {prod.stock}
+                      </span>
+                    </div>
                   </div>
                 ))}
 
                 {products.length === 0 && (
-                  <p className="text-gray-400 text-sm col-span-3">
-                    No products added yet.
-                  </p>
+                  <p className="text-gray-400 text-sm col-span-3">No products added yet.</p>
                 )}
               </>
             )}
-
           </div>
         </div>
 

@@ -12,7 +12,7 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 
-app.use(cors({ origin: ["http://localhost:3000", "*"], credentials: true }))
+app.use(cors({ origin: ["http://localhost:5173"], credentials: true }))
 
 app.get('/api/health', (req, res) => res.send('Your Api is running at Perfectly'))
 
@@ -73,9 +73,9 @@ app.post('/api/login', async (req, res) => {
   }
 })
 
-app.post('/api/logout', (req, res)=>{
+app.post('/api/logout', (req, res) => {
   if (req?.cookies?.Token) res.clearCookie('Token')
-  res.send({ status:'success', message:'Logged Out' })
+  res.send({ status: 'success', message: 'Logged Out' })
 })
 
 app.use('/api/*splat', (req, res, next) => {
@@ -106,42 +106,42 @@ app.use('/api/*splat', (req, res, next) => {
       next()
     }
 
-    else{
-      res.status(401).send({ status:'error', message: "invalid token" })
+    else {
+      res.status(401).send({ status: 'error', message: "invalid token" })
     }
   })
 })
 
-app.get('/api/me', (req, res)=>{
-  res.send({status:'success', user:req.user})
+app.get('/api/me', (req, res) => {
+  res.send({ status: 'success', user: req.user })
 })
 
 // 2. Get All Categories
-app.get('/api/category', async (req, res) => {
-  try {
-    const result = await pool.query(`SELECT * FROM categories ORDER BY created_at DESC`)
-    res.status(200).send({ status: 'success', categories: result.rows })
-  } catch (error) {
-    console.error('Error fetching categories:', error)
-    res.status(500).send({ status: 'error', message: 'Internal Server Error' })
-  }
-})
+// app.get('/api/category', async (req, res) => {
+//   try {
+//     const result = await pool.query(`SELECT * FROM categories ORDER BY created_at DESC`)
+//     res.status(200).send({ status: 'success', categories: result.rows })
+//   } catch (error) {
+//     console.error('Error fetching categories:', error)
+//     res.status(500).send({ status: 'error', message: 'Internal Server Error' })
+//   }
+// })
 
-app.get('/api/product', async (req, res) => {
-  try {
-    const queryText = `
-      SELECT p.id, p.title, p.price, p.description, p.image_url, p.created_at, c.name AS category_name 
-      FROM products p 
-      LEFT JOIN categories c ON p.category_id = c.id 
-      ORDER BY p.created_at DESC
-    `
-    const result = await pool.query(queryText)
-    res.status(200).send({ status: 'success', products: result.rows })
-  } catch (error) {
-    console.error('Error fetching products:', error)
-    res.status(500).send({ status: 'error', message: 'Internal Server Error' })
-  }
-})
+// app.get('/api/product', async (req, res) => {
+//   try {
+//     const queryText = `
+//       SELECT p.id, p.title, p.price, p.description, p.image_url, p.created_at, c.name AS category_name 
+//       FROM products p 
+//       LEFT JOIN categories c ON p.category_id = c.id 
+//       ORDER BY p.created_at DESC
+//     `
+//     const result = await pool.query(queryText)
+//     res.status(200).send({ status: 'success', products: result.rows })
+//   } catch (error) {
+//     console.error('Error fetching products:', error)
+//     res.status(500).send({ status: 'error', message: 'Internal Server Error' })
+//   }
+// })
 
 // app.use('/api/*splat', (req, res)=>{
 //   let Token = req?.cookies?.Token
@@ -169,38 +169,133 @@ const adminOnly = (req, res, next) => {
   }
 }
 
+// app.post('/api/category', adminOnly, async (req, res) => {
+//   const { name, description, image_url } = req.body
+//   if (!name) {
+//     return res.status(400).send({ status: 'error', message: 'Category name is required' })
+//   }
+
+//   try {
+//     const result = await pool.query(
+//       `INSERT INTO categories (name, description, image_url) VALUES ($1, $2, $3) RETURNING *`,
+//       [name, description || '', image_url || '']
+//     )
+//     res.status(201).send({
+//       status: 'success',
+//       message: 'Category added successfully',
+//       category: result.rows[0]
+//     })
+//   } catch (error) {
+//     console.error('Error adding category:', error)
+//     res.status(500).send({ status: 'error', message: 'Internal Server Error' })
+//   }
+// })
+
+// app.post('/api/product', adminOnly, async (req, res) => {
+//   const { title, price, category_id, description, image_url } = req.body
+//   if (!title || !price || !category_id) {
+//     return res.status(400).send({ status: 'error', message: 'Title, price, and category are required' })
+//   }
+
+//   try {
+//     const result = await pool.query(
+//       `INSERT INTO products (title, price, category_id, description, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+//       [title, price, category_id, description || '', image_url || '']
+//     )
+//     res.status(201).send({
+//       status: 'success',
+//       message: 'Product added successfully',
+//       product: result.rows[0]
+//     })
+//   } catch (error) {
+//     console.error('Error adding product:', error)
+//     res.status(500).send({ status: 'error', message: 'Internal Server Error' })
+//   }
+// })
+
 app.post('/api/category', adminOnly, async (req, res) => {
+  //   CREATE TABLE categories (
+  //   id SERIAL UNIQUE,
+  //   name VARCHAR(100) NOT NULL,
+  //   image_url TEXT NOT NULL,
+  //   description TEXT DEFAULT '',  
+  //   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  // )
   const { name, description, image_url } = req.body
-  if (!name) {
-    return res.status(400).send({ status: 'error', message: 'Category name is required' })
+  if (!name || !image_url) {
+    res.status(400).send({ status: 'success', message: 'Category name and Image is required' })
+    return
   }
 
+
   try {
-    const result = await pool.query(
-      `INSERT INTO categories (name, description, image_url) VALUES ($1, $2, $3) RETURNING *`,
-      [name, description || '', image_url || '']
-    )
-    res.status(201).send({
-      status: 'success',
-      message: 'Category added successfully',
-      category: result.rows[0]
-    })
+    const categories = await pool.query(`
+      INSERT INTO CATEGORIES (name, image_url, description) VALUES ($1, $2, $3)
+      `, [name, image_url, description || ''])
+    res.status(201).send({ status: 'success', message: 'Category Successfully Added' })
   } catch (error) {
-    console.error('Error adding category:', error)
-    res.status(500).send({ status: 'error', message: 'Internal Server Error' })
+    console.log(error);
+    if (error.code === '23505') res.status(400).send({ status: "error", message: "Category Already Exist" })
+    else res.status(500).send({ status: "error", message: "Internal Server Error" })
+  }
+
+})
+
+app.get('/api/category', async (req, res) => {
+  try {
+    const category = await pool.query(`SELECT * FROM categories`)
+    res.send({ status: "success", categories: category.rows })
+  } catch (error) {
+    res.status(500).send({ status: "error", message: "Internal Server Error" })
   }
 })
 
-app.post('/api/product', adminOnly, async (req, res) => {
-  const { title, price, category_id, description, image_url } = req.body
-  if (!title || !price || !category_id) {
-    return res.status(400).send({ status: 'error', message: 'Title, price, and category are required' })
+app.post('/api/product', async (req, res) => {
+  const { product_name, description, price, category, brand, sku, stock, image_array_product, discount_price } = req.body;
+
+  if (!product_name || !description || !price || !category || !brand || !sku || !stock || !image_array_product?.[0]) {
+    res.status(400).send({ status: 'error', message: 'Required Parameters are missing' })
+    return
   }
+
+  // CREATE TABLE products (
+  //     id SERIAL PRIMARY KEY,
+  //     category_id INT NOT NULL,
+  //     name VARCHAR(255) NOT NULL,
+  //     brand VARCHAR(100),          -- Naya column
+  //     sku VARCHAR(100) UNIQUE,     -- Naya column
+  //     images TEXT[],
+  //     description TEXT DEFAULT '',
+  //     price DECIMAL(10, 2) NOT NULL,
+  //     discount_price DECIMAL(10, 2) DEFAULT 0, -- Naya column
+  //     stock INT DEFAULT 0,
+  //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  //     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  //     FOREIGN KEY (category_id)
+  //         REFERENCES categories(id)
+  //         ON DELETE RESTRICT
+  // );
+  //   ON DELETE CASCADE: Agar aap chahte hain ke jaise hi aap category delete karein, uske andar ke saare products bhi automatically delete ho jayein, toh aap CASCADE use karte hain. (Lekin ye thoda khatarnak ho sakta hai kyunke ghalti se category delete hone par saare products udd jayenge).
+
+  // ON DELETE SET NULL: Agar aap chahte hain ke category delete hone par products delete na hon, balkay unka category_id automatic NULL ho jaye, toh aap ye likhte hain (iske liye column ka NOT NULL hatana padega).
 
   try {
     const result = await pool.query(
-      `INSERT INTO products (title, price, category_id, description, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [title, price, category_id, description || '', image_url || '']
+      `INSERT INTO products (category_id, name, brand, sku, images, description, price, discount_price, stock) 
+   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+   RETURNING *`,
+      [
+        category,
+        product_name,
+        brand || null,
+        sku || null,
+        image_array_product,
+        description || '',
+        price,
+        discount_price || null,
+        stock || 0
+      ]
     )
     res.status(201).send({
       status: 'success',
@@ -208,15 +303,21 @@ app.post('/api/product', adminOnly, async (req, res) => {
       product: result.rows[0]
     })
   } catch (error) {
-    console.error('Error adding product:', error)
-    res.status(500).send({ status: 'error', message: 'Internal Server Error' })
+    if (error.code === '23505') res.status(400).send({ status: "error", message: "SKU should be always Unique" })
+    else res.status(500).send({ status: "error", message: "Internal Server Error" })
+  }
+
+})
+
+app.get('/api/product', async (req, res) => {
+  try {
+    let { rows } = await pool.query(`SELECT * FROM products`)
+    res.send({ status:'success', products:rows })
+  } catch (error) {
+    res.status(500).send({ status: "error", message: "Internal Server Error" })
   }
 })
 
-// app.post('api/category', adminOnly, async (req, res)=>{
-// const { name, description, image_url } = req.body
-
-// })
 
 const __dirname = path.resolve()
 const __frontend = path.join(__dirname, './Web/dist')

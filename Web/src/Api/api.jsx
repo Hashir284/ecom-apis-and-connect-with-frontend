@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: '/api/',
+    baseURL: window.location.href.split(":")[0] === 'http' ? 'http://localhost:4000/api/' : '/api/',
     withCredentials: true
 })
 
