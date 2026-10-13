@@ -9,15 +9,15 @@ import { useEffect } from 'react'
 import api from './Api/api'
 
 function App() {
-  
+
   const { userLoggedin, setUser, setUserLoggedin, user } = useContext(UserData)
 
   useEffect(() => {
     getUser()
   }, [])
-const getUser = async () => {
+  const getUser = async () => {
     try {
-      let apiRes  = await api.get('me')
+      let apiRes = await api.get('me')
       console.log(apiRes?.data?.user || null);
       setUser(apiRes.data.user || null)
       setUserLoggedin(apiRes.data.user ? true : false)
@@ -29,28 +29,28 @@ const getUser = async () => {
     }
   }
 
-  if(userLoggedin === null){
+  if (userLoggedin === null) {
     return null
   }
 
-  if(userLoggedin === true && user !== null){
+  if (userLoggedin === true && user !== null) {
     return <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/" element={<Navigate to="/Dashboard" replace />} />
-        <Route path='*' element={<Navigate to="/Dashboard" replace />} />
-      </Routes>
+      <Route path="/dashboard" element={<Dashboard />} />
+      {/* <Route path="/" element={<Navigate to="/Dashboard" replace />} /> */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   }
 
-  if(userLoggedin === false){
-  return (
+  if (userLoggedin === false) {
+    return (
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
         <Route path="/signup" element={<Signup />} />
-        <Route path='*' element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-  )
-}
+    )
+  }
 
 }
 
