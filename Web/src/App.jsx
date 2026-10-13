@@ -36,8 +36,8 @@ const getUser = async () => {
   if(userLoggedin === true && user != null){
     // replace = current browser history wali entry ko replace kar do, nayi entry mat banao.
     return <Routes>
-        <Route path="/" element={<Navigate to="/Dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Navigate to="/Dashboard" replace />} />
         <Route path='*' element={<Navigate to="/Dashboard" replace />} />
       </Routes>
   }
@@ -45,8 +45,8 @@ const getUser = async () => {
   if(userLoggedin === false){
   return (
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/signup" element={<Signup />} />
         <Route path='*' element={<Navigate to="/login" replace />} />
       </Routes>
